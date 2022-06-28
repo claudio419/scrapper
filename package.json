@@ -1,0 +1,23 @@
+{
+  "name": "stats_web_scrapper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "codecept.conf.js",
+  "scripts": {
+    "scrapper": "codeceptjs run --steps --grep '@scrapper' ",
+    "prediction": "codeceptjs run --steps --grep '@prediction' ",
+    "def": "codeceptjs def"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "codeceptjs": "^3.3.3",
+    "playwright": "^1.22.2"
+  },
+  "dependencies": {
+    "dotenv-defaults": "^2.0.1",
+    "json-rules-engine": "^6.1.2",
+    "mongodb": "^4.7.0"
+  }
+}
