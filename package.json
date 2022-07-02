@@ -13,7 +13,8 @@
   "license": "ISC",
   "devDependencies": {
     "codeceptjs": "^3.3.3",
-    "playwright": "^1.22.2"
+    "playwright": "^1.22.2",
+    "playwright-chromium":"^1.11.1"
   },
   "dependencies": {
     "dotenv-defaults": "^2.0.1",
