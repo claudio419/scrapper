@@ -6,7 +6,7 @@ exports.config = {
   helpers: {
     Playwright: {
       url: '',
-      show: process.env.HEADLESS,
+      show: process.env.HEADLESS === true,
       browser: 'chromium',
       waitForNavigation: "domcontentloaded",
       waitForAction: 5000,
