@@ -4,6 +4,7 @@
   "description": "",
   "main": "codecept.conf.js",
   "scripts": {
+    "grep" : "codeceptjs run --steps --grep",
     "scrapper": "codeceptjs run --steps --grep '@scrapper' ",
     "prediction": "codeceptjs run --steps --grep '@prediction' ",
     "def": "codeceptjs def"

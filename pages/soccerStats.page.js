@@ -26,7 +26,9 @@ module.exports = {
     },
 
     goToDailyMachtPage() {
-        I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=2');
+        I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=4');
+        //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=3');
+        //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=2');
         //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=1');
     },
 

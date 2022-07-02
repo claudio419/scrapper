@@ -58,9 +58,9 @@ module.exports = {
     },
 
     extractData(team,homeGeneralResult, scoresTable, firstGoalStatsTable, OpeningGoalScoredTable, OpeningGoalConcededTable) {
-        const teamName = team.name.replaceAll('-', ' ').trim();
-        team.generalResult = homeGeneralResult.filter( element => element.teamName.replaceAll('-', ' ').trim() === teamName)[0];
-        team.gameResult = scoresTable.filter( element => element.teamName.replaceAll('-', ' ').trim() === teamName)[0];
+        const teamName = team.name.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim();
+        team.generalResult = homeGeneralResult.filter( element => element.teamName.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim() === teamName)[0];
+        team.gameResult = scoresTable.filter( element => element.teamName.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim() === teamName)[0];
         if (firstGoalStatsTable) {
             team.firstGoalStats = this.extractStatsByTeamName(teamName, firstGoalStatsTable);
         }
@@ -78,7 +78,7 @@ module.exports = {
 
     extractStatsByTeamName(teamName, goalStatsTable) {
         try {
-            return goalStatsTable.filter( element => element.team.replaceAll('-', ' ').trim() === teamName)[0];
+            return goalStatsTable.filter( element => element.team.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim() === teamName)[0];
         } catch (e) {
             console.log(teamName);
             return '';
@@ -127,6 +127,7 @@ module.exports = {
             return calculatedData;
         } catch (e) {
             console.log('Se rompe en: ',teamData.name);
+            console.log(teamData);
         }
 
     },
@@ -136,7 +137,7 @@ module.exports = {
             try {
                 const result= [];
                 result.teamName = homeTable[x].teamName;
-                const awayResult =  awayTable.filter( element => element.teamName.replaceAll('-', ' ').trim() === result.teamName.replaceAll('-', ' ').trim())[0];
+                const awayResult =  awayTable.filter( element => element.teamName.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim() === result.teamName.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim())[0];
                 ///console.log(awayResult);
                 result.gamePlayed = parseInt(homeTable[x].gamePlayed) + parseInt(awayResult.gamePlayed);
                 result.winning = parseInt(homeTable[x].winning) + parseInt(awayResult.winning);
@@ -171,14 +172,14 @@ module.exports = {
             );
 
         console.log(
-            awayFullData.team,';',
-            awayFullData.winningPercentageOfMatches,';',
-            awayFullData.failedToScoreInPercentage,';',
-            awayFullData.cleanSheetInPercentage,';',
-            awayFullData.matchesWhereBothTeamsScoredInPercentage,';',
-            awayFullData.totalGoalsScoreAndConcededPerMatch, ';',
-            awayFullData.goalScoredPerMatch, ';',
-            awayFullData.goalConcedePerMatch
+            awayFullData?.team,';',
+            awayFullData?.winningPercentageOfMatches,';',
+            awayFullData?.failedToScoreInPercentage,';',
+            awayFullData?.cleanSheetInPercentage,';',
+            awayFullData?.matchesWhereBothTeamsScoredInPercentage,';',
+            awayFullData?.totalGoalsScoreAndConcededPerMatch, ';',
+            awayFullData?.goalScoredPerMatch, ';',
+            awayFullData?.goalConcedePerMatch
         );
         console.log('\n');
 

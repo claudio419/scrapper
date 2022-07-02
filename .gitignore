@@ -1,6 +1,6 @@
 .env.defaults
 .idea/
-client/
 jsconfig.json
 node_modules/
 package-lock.json
+output/
