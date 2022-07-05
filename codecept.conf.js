@@ -10,6 +10,7 @@ exports.config = {
       browser: 'chromium',
       waitForNavigation: "domcontentloaded",
       waitForAction: 5000,
+      trace: true,
     }
   },
   include: {
