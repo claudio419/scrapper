@@ -26,6 +26,7 @@ module.exports = {
     },
 
     goToDailyMachtPage() {
+        //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=5');
         I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=4');
         //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=3');
         //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=2');
@@ -145,6 +146,7 @@ module.exports = {
                 playingLeagues[l].setFirstGoalStats(firstGoalStats);
             } catch (e) {
                 console.log(playingLeagues[l].league);
+                console.log(e);
             }
         }
 
@@ -401,7 +403,10 @@ module.exports = {
             firstGoalStatArray[x].replace('<tr class="odd" height="26">', '');
             const tds = firstGoalStatArray[x].split('</td>');
 
-            firstGoalStatsTeam = this.fillFirstGoalStatsTeam(tds);
+            if (tds.length > 0 ) {
+                firstGoalStatsTeam = this.fillFirstGoalStatsTeam(tds);
+            }
+
 
             if (firstGoalStatsTeam) {
                 firstGoalStatsTable.push(firstGoalStatsTeam);
