@@ -101,6 +101,8 @@ module.exports = {
 
                 playingLeagues[l].setHomeTable(homeTable);
                 playingLeagues[l].setAwayTable(awayTable);
+
+                l = playingLeagues.length; // Todo: remove this line
             } catch (e) {
                 console.log(e);
                 console.log(playingLeagues[l].league);
@@ -113,8 +115,6 @@ module.exports = {
 
     async fillFirstGoalStats(playingLeagues) {
 
-        I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=2');
-        I.wait(1);
         let firstGoalStats;
 
         for(let l = 0; l < playingLeagues.length; l++) {
@@ -125,6 +125,7 @@ module.exports = {
                 }
 
                 this.goToPageByPath(playingLeagues[l].statsUrl);
+
 
                 const numberOfButton = await I.grabNumberOfVisibleElements(this.locators.firstGoalStatsButton);
                 if (numberOfButton < 1) {
