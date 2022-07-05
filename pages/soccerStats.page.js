@@ -147,6 +147,7 @@ module.exports = {
             } catch (e) {
                 console.log(playingLeagues[l].league);
                 console.log(e);
+                console.log(allTable);
             }
         }
 
@@ -337,85 +338,102 @@ module.exports = {
     },
 
     fillFirstGoalStatsTeam(tds) {
-        const team = tds[0]
-            .replaceAll('\n', '')
-            .replace('</a>', '')
-            .split('>')[3]; // return team name
 
-        const gamePlayed = tds[1]
-            ?.replaceAll('\n', '')
-            ?.replaceAll(' ', '')
-            ?.replace('</font>', '')
-            ?.split('>')[2] // Return game played;
+        try {
+            const team = tds[0]
+                .replaceAll('\n', '')
+                .replace('</a>', '')
+                .split('>')[3]; // return team name
 
-        const homeScoreFirst = tds[3]
-            ?.replaceAll('\n', '')
-            ?.replaceAll(' ', '')
-            ?.replace('</font>', '')
-            ?.split('>')[2] // Return homeScoreFirst;
+            const gamePlayed = tds[1]
+                ?.replaceAll('\n', '')
+                ?.replaceAll(' ', '')
+                ?.replace('</font>', '')
+                ?.split('>')[2] // Return game played;
 
-        const homeNoGoal = tds[4]
-            ?.replaceAll('\n', '')
-            ?.replaceAll(' ', '')
-            ?.split('>')[1] // Return homeNoGoal;
+            const homeScoreFirst = tds[3]
+                ?.replaceAll('\n', '')
+                ?.replaceAll(' ', '')
+                ?.replace('</font>', '')
+                ?.split('>')[2] // Return homeScoreFirst;
 
-        const homeConcededFirst = tds[5]
-            ?.replaceAll('\n', '')
-            ?.replaceAll(' ', '')
-            ?.replace('</font>', '')
-            ?.split('>')[2] // Return homeConcededFirst;
+            const homeNoGoal = tds[4]
+                ?.replaceAll('\n', '')
+                ?.replaceAll(' ', '')
+                ?.split('>')[1] // Return homeNoGoal;
 
-        const awayScoreFirst = tds[6]
-            ?.replaceAll('\n', '')
-            ?.replaceAll(' ', '')
-            ?.replace('</font>', '')
-            ?.split('>')[2] // Return awayScoreFirst
+            const homeConcededFirst = tds[5]
+                ?.replaceAll('\n', '')
+                ?.replaceAll(' ', '')
+                ?.replace('</font>', '')
+                ?.split('>')[2] // Return homeConcededFirst;
 
-        const awayNoGoal = tds[7]
-            ?.replaceAll('\n', '')
-            ?.replaceAll(' ', '')
-            ?.split('>')[1] // Return  awayNoGoal;
+            const awayScoreFirst = tds[6]
+                ?.replaceAll('\n', '')
+                ?.replaceAll(' ', '')
+                ?.replace('</font>', '')
+                ?.split('>')[2] // Return awayScoreFirst
 
-        const awayConcededFirst = tds[8]
-            ?.replaceAll('\n', '')
-            ?.replaceAll(' ', '')
-            ?.replace('</font>', '')
-            ?.split('>')[2] // Return homeConcededFirst;
+            const awayNoGoal = tds[7]
+                ?.replaceAll('\n', '')
+                ?.replaceAll(' ', '')
+                ?.split('>')[1] // Return  awayNoGoal;
 
-        if (!team && !gamePlayed && !homeScoreFirst && !homeNoGoal && !homeConcededFirst && !awayScoreFirst && !awayNoGoal && !awayConcededFirst) {
+            const awayConcededFirst = tds[8]
+                ?.replaceAll('\n', '')
+                ?.replaceAll(' ', '')
+                ?.replace('</font>', '')
+                ?.split('>')[2] // Return homeConcededFirst;
+
+            if (!team && !gamePlayed && !homeScoreFirst && !homeNoGoal && !homeConcededFirst && !awayScoreFirst && !awayNoGoal && !awayConcededFirst) {
+                return null;
+            }
+
+            return new FirstGoalStatsTeam(team, gamePlayed, homeScoreFirst, homeNoGoal, homeConcededFirst, awayScoreFirst, awayNoGoal, awayConcededFirst);
+        } catch (e) {
+
+            console.log('fillFirstGoalStatsTeam');
+            console.log(tds);
             return null;
+
         }
 
-        return new FirstGoalStatsTeam(team, gamePlayed, homeScoreFirst, homeNoGoal, homeConcededFirst, awayScoreFirst, awayNoGoal, awayConcededFirst);
     },
 
     getFirstGoalStatsTable(htmlTable) {
-        const firstGoalStatsTable = [];
-        let firstGoalStatsTeam;
-        const firstGoalStatsTableHtml = htmlTable; // frist table ist firstGoalStats table
-        const firstGoalStatArray = firstGoalStatsTableHtml.split('</tr>') // convert it as array
+        try {
+            const firstGoalStatsTable = [];
+            let firstGoalStatsTeam;
+            const firstGoalStatsTableHtml = htmlTable; // frist table ist firstGoalStats table
+            const firstGoalStatArray = firstGoalStatsTableHtml.split('</tr>') // convert it as array
 
-        for (let x = 0; x < firstGoalStatArray.length; x++) {
-            if (firstGoalStatArray[x].search('bgcolor="#e0e0e0"') >= 0 ) {
-                continue;
+            for (let x = 0; x < firstGoalStatArray.length; x++) {
+                if (firstGoalStatArray[x].search('bgcolor="#e0e0e0"') >= 0 ) {
+                    continue;
+                }
+
+                firstGoalStatArray[x].replace('<tr class="odd" height="26">', '');
+                const tds = firstGoalStatArray[x].split('</td>');
+
+                if (tds.length > 0 ) {
+                    firstGoalStatsTeam = this.fillFirstGoalStatsTeam(tds);
+                }
+
+
+                if (firstGoalStatsTeam) {
+                    firstGoalStatsTable.push(firstGoalStatsTeam);
+                }
+
+
             }
 
-            firstGoalStatArray[x].replace('<tr class="odd" height="26">', '');
-            const tds = firstGoalStatArray[x].split('</td>');
+            return firstGoalStatsTable;
 
-            if (tds.length > 0 ) {
-                firstGoalStatsTeam = this.fillFirstGoalStatsTeam(tds);
-            }
-
-
-            if (firstGoalStatsTeam) {
-                firstGoalStatsTable.push(firstGoalStatsTeam);
-            }
-
+        } catch (e) {
+            console.log('getFirstGoalStatsTable');
 
         }
 
-        return firstGoalStatsTable;
     },
 
     getOpeningGoalsScoredTable(htmlTable) {
