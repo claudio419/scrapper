@@ -1,6 +1,7 @@
 const {firefox} = require("playwright");
 module.exports = {
     predictResultByLeagues(arrayLeagues) {
+        const predictionMatches = [];
         for (let x = 0; x <= arrayLeagues.length; x++) {
         //for (let x = 0; x < 1; x++) {
             const league = arrayLeagues[x];
@@ -16,7 +17,10 @@ module.exports = {
             const firstGoalStats = league.firstGoalStats;
 
             const calculatedMatches = this.calculateMatches(leagueName, matches, homeTable, awayTable, firstGoalStats);
+            predictionMatches.push(calculatedMatches);
         }
+
+        return predictionMatches.join(' ');
     },
     calculateMatches(leagueName,matches, homeTable, awayTable, firstGoalStats) {
         const firstGoalStatsTable = firstGoalStats.firstGoalStatsTable;
@@ -24,11 +28,11 @@ module.exports = {
         const awayOpeningGoalScoredTable = firstGoalStats.awayOpeningGoalScoredTable;
         const homeOpeningGoalConcededTable = firstGoalStats.homeOpeningGoalConcededTable;
         const awayOpeningGoalConcededTable = firstGoalStats.awayOpeningGoalConcededTable;
+        const calculateMatches = [];
 
         for (let x = 0; x < matches.length; x++) {
         //for (let x = 0; x < 1; x++) {
             const match = matches[x];
-           // const time = match.time;
             const home = match?.homeTeam;
             const away = match?.awayTeam;
             if (!home || !away) {
@@ -43,13 +47,12 @@ module.exports = {
             const homeTeamData = this.unifiedData(homeFullData);
             const awayTeamData = this.unifiedData(awayFullData);
 
-
             //Here it will apply pablos logic
-            this.calculate(leagueName,homeTeamData, awayTeamData);
-            //console.log('\n');
-
-
+            const matchCalculated = this.calculate(leagueName,homeTeamData, awayTeamData);
+            calculateMatches.push(matchCalculated);
         }
+
+        return calculateMatches.join(' ');
     },
 
     getAverage(operator1, operator2) {
@@ -84,11 +87,8 @@ module.exports = {
             return '';
         }
 
-
     },
     unifiedData(teamData) {
-
-        //console.log(teamData);
 
         try {
             const calculatedData = [];
@@ -126,7 +126,7 @@ module.exports = {
 
             return calculatedData;
         } catch (e) {
-            console.log('Se rompe en: ',teamData.name);
+            console.log('It break on: ',teamData.name);
             console.log(teamData);
         }
 
@@ -138,7 +138,7 @@ module.exports = {
                 const result= [];
                 result.teamName = homeTable[x].teamName;
                 const awayResult =  awayTable.filter( element => element.teamName.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim() === result.teamName.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim())[0];
-                ///console.log(awayResult);
+
                 result.gamePlayed = parseInt(homeTable[x].gamePlayed) + parseInt(awayResult.gamePlayed);
                 result.winning = parseInt(homeTable[x].winning) + parseInt(awayResult.winning);
                 result.draw = parseInt(homeTable[x].draw) + parseInt(awayResult.draw);
@@ -156,11 +156,14 @@ module.exports = {
         return generalResult;
     },
     calculate(leagueName, homeFullData, awayFullData) {
-        console.log(leagueName, ';', homeFullData.matchTime);
+        const calculatedText = [];
+
+        calculatedText.push(leagueName, ';', homeFullData.matchTime, '\n');
 
         // General Stats
-        console.log('General Stats',';', 'W%',';', 'FailedToScore - FTS',';', 'Clean Sheet - CS',';', 'BTS',';', 'TotalGoalScore - TG', ';', 'GoalScorePerMatch - GF', ';', 'GoalCondecedPerMatch - GA');
-        console.log(
+        calculatedText.push('General Stats',';', 'W%',';', 'FailedToScore - FTS',';', 'Clean Sheet - CS',';', 'BTS',';', 'TotalGoalScore - TG', ';', 'GoalScorePerMatch - GF', ';', 'GoalCondecedPerMatch - GA', '\n');
+
+        calculatedText.push(
             homeFullData.team,';',
             homeFullData.winningPercentageOfMatches,';',
             homeFullData.failedToScoreInPercentage,';',
@@ -168,10 +171,11 @@ module.exports = {
             homeFullData.matchesWhereBothTeamsScoredInPercentage,';',
             homeFullData.totalGoalsScoreAndConcededPerMatch, ';',
             homeFullData.goalScoredPerMatch, ';',
-            homeFullData.goalConcedePerMatch
-            );
+            homeFullData.goalConcedePerMatch,
+            '\n'
+        );
 
-        console.log(
+        calculatedText.push(
             awayFullData?.team,';',
             awayFullData?.winningPercentageOfMatches,';',
             awayFullData?.failedToScoreInPercentage,';',
@@ -179,9 +183,10 @@ module.exports = {
             awayFullData?.matchesWhereBothTeamsScoredInPercentage,';',
             awayFullData?.totalGoalsScoreAndConcededPerMatch, ';',
             awayFullData?.goalScoredPerMatch, ';',
-            awayFullData?.goalConcedePerMatch
+            awayFullData?.goalConcedePerMatch,
+            '\n'
         );
-        console.log('\n');
+        calculatedText.push('\n');
 
 
         // General Result
@@ -194,10 +199,11 @@ module.exports = {
         const homeMargen1 = 20.0 - homeGeneralPergcentageOfVitory;
         const awayMargen1 = awayGeneralPergcentageOfVitory - 50.0;
         // -------------------------------------------------
-        console.log('General',';', 'PJ',';', 'G',';', 'E',';', 'P',';', 'generalWinningPerncetage', ';', 'generalDrawPerncetage', ';', 'generalLoosingPerncetage', ';','porcentaje  victorias VISITA + porcentaje DERROTAS local) / 2', ';','',';','Resta I4-I3 (57%-22%)', ';', 'generalQuikView WENN(I3<25%-"1"-WENN(I3>24%-"0"))');
-        console.log(homeFullData.team,';', homeFullData.generalGamePlayed,';', homeFullData.generalWinning,';', homeFullData.generalDraw,';', homeFullData.generalLoosing,';', homeFullData.generalWinningPerncetage, ';', homeFullData.generalDrawPerncetage, ';', homeFullData.generalLoosingPerncetage, ';',homeGeneralPergcentageOfVitory.toFixed(2)+'%', ';','',';',GeneralawayGeneralPergcentageOfVitoryMenusHomeGeneralPergcentageOfVitory.toFixed(2)+'%', ';', homeGeneralQuikView, ';', homeMargen1.toFixed(2) + '%');
-        console.log(awayFullData.team,';', awayFullData.generalGamePlayed,';', awayFullData.generalWinning,';', awayFullData.generalDraw,';', awayFullData.generalLoosing,';', awayFullData.generalWinningPerncetage, ';', awayFullData.generalDrawPerncetage, ';', awayFullData.generalLoosingPerncetage, ';',awayGeneralPergcentageOfVitory.toFixed(2)+'%', ';','',';','', ';', awayGeneralQuikView, ';', awayMargen1.toFixed(2) + '%');
-        console.log();
+        calculatedText.push('General',';', 'PJ',';', 'G',';', 'E',';', 'P',';', 'generalWinningPerncetage', ';', 'generalDrawPerncetage', ';', 'generalLoosingPerncetage', ';','porcentaje  victorias VISITA + porcentaje DERROTAS local) / 2', ';','',';','Resta I4-I3 (57%-22%)', ';', 'generalQuikView WENN(I3<25%-"1"-WENN(I3>24%-"0"))', '\n');
+
+        calculatedText.push(homeFullData.team,';', homeFullData.generalGamePlayed,';', homeFullData.generalWinning,';', homeFullData.generalDraw,';', homeFullData.generalLoosing,';', homeFullData.generalWinningPerncetage, ';', homeFullData.generalDrawPerncetage, ';', homeFullData.generalLoosingPerncetage, ';',homeGeneralPergcentageOfVitory.toFixed(2)+'%', ';','',';',GeneralawayGeneralPergcentageOfVitoryMenusHomeGeneralPergcentageOfVitory.toFixed(2)+'%', ';', homeGeneralQuikView, ';', homeMargen1.toFixed(2) + '%', '\n');
+        calculatedText.push(awayFullData.team,';', awayFullData.generalGamePlayed,';', awayFullData.generalWinning,';', awayFullData.generalDraw,';', awayFullData.generalLoosing,';', awayFullData.generalWinningPerncetage, ';', awayFullData.generalDrawPerncetage, ';', awayFullData.generalLoosingPerncetage, ';',awayGeneralPergcentageOfVitory.toFixed(2)+'%', ';','',';','', ';', awayGeneralQuikView, ';', awayMargen1.toFixed(2) + '%', '\n');
+        calculatedText.push('\n');
 
 
         // Home Away Result
@@ -210,13 +216,11 @@ module.exports = {
         const homeAwayHomeMargen1 = (20.0 - homePercentageOfVictory).toFixed(2) + '%';
         const homeAwayAwayMargen1 = (awayPercentageOfVictory - 50.0).toFixed(2) + '%';
         // -------------------------------------------------
-        console.log('Home/Away',';', 'PJ',';', 'G',';', 'E',';', 'P',';', 'WinningPerncetage', ';', 'DrawPerncetage', ';', 'LoosingPerncetage', ';','porcentaje  victorias VISITA + porcentaje DERROTAS local) / 2', ';','',';','Resta I4-I3 (57%-22%)', ';', 'generalQuikView WENN(I3<25%-"1"-WENN(I3>24%-"0"))');
-        console.log(homeFullData.team,';', homeFullData.gamePlayed,';', homeFullData.winning,';', homeFullData.draw,';', homeFullData.loosing,';', homeFullData.winningPerncetage, ';', homeFullData.drawPerncetage, ';', homeFullData.loosingPerncetage, ';',homePercentageOfVictory.toFixed(2)+'%', ';','',';',awayPercentageOfVictoryMinusHomePercentageOfVictory.toFixed(2)+'%', ';', homeQuikView, ';',homeAwayHomeMargen1);
-        console.log(awayFullData.team,';', awayFullData.gamePlayed,';', awayFullData.winning,';', awayFullData.draw,';', awayFullData.loosing,';', awayFullData.winningPerncetage, ';', awayFullData.drawPerncetage, ';', awayFullData.loosingPerncetage, ';',awayPercentageOfVictory.toFixed(2)+'%', ';','',';','', ';', awayQuikView, ';',homeAwayAwayMargen1);
-        //console.log('',';', '',';', '',';', '',';', '',';', '', ';', 'Que Significa 1.7?????', ';', 'Que Significa -100?????', ';','Que Significa 1.4?????');
 
-        console.log();
-
+        calculatedText.push('Home/Away',';', 'PJ',';', 'G',';', 'E',';', 'P',';', 'WinningPerncetage', ';', 'DrawPerncetage', ';', 'LoosingPerncetage', ';','porcentaje  victorias VISITA + porcentaje DERROTAS local) / 2', ';','',';','Resta I4-I3 (57%-22%)', ';', 'generalQuikView WENN(I3<25%-"1"-WENN(I3>24%-"0"))', '\n');
+        calculatedText.push(homeFullData.team,';', homeFullData.gamePlayed,';', homeFullData.winning,';', homeFullData.draw,';', homeFullData.loosing,';', homeFullData.winningPerncetage, ';', homeFullData.drawPerncetage, ';', homeFullData.loosingPerncetage, ';',homePercentageOfVictory.toFixed(2)+'%', ';','',';',awayPercentageOfVictoryMinusHomePercentageOfVictory.toFixed(2)+'%', ';', homeQuikView, ';',homeAwayHomeMargen1, '\n');
+        calculatedText.push(awayFullData.team,';', awayFullData.gamePlayed,';', awayFullData.winning,';', awayFullData.draw,';', awayFullData.loosing,';', awayFullData.winningPerncetage, ';', awayFullData.drawPerncetage, ';', awayFullData.loosingPerncetage, ';',awayPercentageOfVictory.toFixed(2)+'%', ';','',';','', ';', awayQuikView, ';',homeAwayAwayMargen1, '\n');
+        calculatedText.push('\n');
 
         //Fisrt Goal
         let homeWinningAverage = 0;
@@ -238,10 +242,11 @@ module.exports = {
                 homeConcedeFirstAverage = ((parseInt(homeFullData.firstGoalStats.homeConcededFirst) / totalHomeGoalFirst) * 100).toFixed(2);
                 awayConcedeFirstAverage = ((parseInt(awayFullData.firstGoalStats.awayConcededFirst) / totalAwayGoalFirst) * 100).toFixed(2);
                 // -------------------------------------------------
-                console.log('First Goal',';', 'local?',';', 'ScoreFirst',';', 'NoGoal',';', 'ConcededFirst',';', 'WinningAverage', ';', 'NoGoalAverage', ';','ConcedeFirstAverage');
-                console.log(homeFullData.team,';', totalHomeGoalFirst,';', parseInt(homeFullData.firstGoalStats.homeScoreFirst),';', parseInt(homeFullData.firstGoalStats.homeNoGoal),';', parseInt(homeFullData.firstGoalStats.homeConcededFirst),';', homeWinningAverage, ';', homeNoGoalAverage, ';', homeConcedeFirstAverage);
-                console.log(awayFullData.team,';', totalAwayGoalFirst,';', parseInt(awayFullData.firstGoalStats.awayScoreFirst),';', parseInt(awayFullData.firstGoalStats.awayNoGoal),';', parseInt(awayFullData.firstGoalStats.awayConcededFirst), ';',awayWinningAverage, ';', awayNoGoalAverage, ';', awayConcedeFirstAverage);
-                console.log();
+
+                calculatedText.push('First Goal',';', 'local?',';', 'ScoreFirst',';', 'NoGoal',';', 'ConcededFirst',';', 'WinningAverage', ';', 'NoGoalAverage', ';','ConcedeFirstAverage', '\n');
+                calculatedText.push(homeFullData.team,';', totalHomeGoalFirst,';', parseInt(homeFullData.firstGoalStats.homeScoreFirst),';', parseInt(homeFullData.firstGoalStats.homeNoGoal),';', parseInt(homeFullData.firstGoalStats.homeConcededFirst),';', homeWinningAverage, ';', homeNoGoalAverage, ';', homeConcedeFirstAverage, '\n');
+                calculatedText.push(awayFullData.team,';', totalAwayGoalFirst,';', parseInt(awayFullData.firstGoalStats.awayScoreFirst),';', parseInt(awayFullData.firstGoalStats.awayNoGoal),';', parseInt(awayFullData.firstGoalStats.awayConcededFirst), ';',awayWinningAverage, ';', awayNoGoalAverage, ';', awayConcedeFirstAverage, '\n');
+                calculatedText.push('\n');
             }
         } catch (e) {
             console.log('//Fisrt Goal');
@@ -262,11 +267,11 @@ module.exports = {
 
                 const averageScorePlusConceded = (parseFloat(homeFullData.openingGoalScored.firstHalf) + parseFloat(awayFullData.openingGoalConceded.firstHalf))/2;
 
-                console.log('First Goal on the Mache',';','total',';', '1er',';', '2do',';', '%1er',';', '%2do');
-                console.log(homeFullData.team,';', totalHomeGoalMatch,';', totalHomeGoalFirstTime,';', totalHomeGoalSecontTime,';', homeFullData.openingGoalScored.firstHalf,';', homeFullData.openingGoalScored.secondHalf);
-                console.log(awayFullData.team,';', totalAwayGoalMatch,';', totalAwayGoalFirstTime,';', totalAwayGoalSecontTime,';', awayFullData.openingGoalConceded.firstHalf, ';',awayFullData.openingGoalConceded.secondHalf);
-                console.log('',';', '',';', '',';', '',';', averageScorePlusConceded + '%',);
-                console.log();
+                calculatedText.push('First Goal on the Mache',';','total',';', '1er',';', '2do',';', '%1er',';', '%2do', '\n');
+                calculatedText.push(homeFullData.team,';', totalHomeGoalMatch,';', totalHomeGoalFirstTime,';', totalHomeGoalSecontTime,';', homeFullData.openingGoalScored.firstHalf,';', homeFullData.openingGoalScored.secondHalf, '\n');
+                calculatedText.push(awayFullData.team,';', totalAwayGoalMatch,';', totalAwayGoalFirstTime,';', totalAwayGoalSecontTime,';', awayFullData.openingGoalConceded.firstHalf, ';',awayFullData.openingGoalConceded.secondHalf, '\n');
+                calculatedText.push('',';', '',';', '',';', '',';', averageScorePlusConceded + '%','\n');
+                calculatedText.push('\n');
             }
         } catch (e) {
             console.log('// First Goal on the Match time')
@@ -281,9 +286,10 @@ module.exports = {
         const thirthDecitionAwayWinningLessThan30 = parseFloat(awayFullData.generalWinningPerncetage) <= 30 ? 1 : 0;
         const fouthDecitionAwayWinnerbiggerThan45 = parseFloat(awayFullData.generalLoosingPerncetage) >= 45 ? 1 : 0;
 
-        console.log('',';', firstDecitionHomeWinnerbiggerThan40,';',secondDecitionHomeLossingLessThan30);
-        console.log('',';', thirthDecitionAwayWinningLessThan30,';',fouthDecitionAwayWinnerbiggerThan45);
-        console.log();
+
+        calculatedText.push('',';', firstDecitionHomeWinnerbiggerThan40,';',secondDecitionHomeLossingLessThan30, '\n');
+        calculatedText.push('',';', thirthDecitionAwayWinningLessThan30,';',fouthDecitionAwayWinnerbiggerThan45, '\n');
+        calculatedText.push('\n');
 
         // second part
 
@@ -367,9 +373,8 @@ module.exports = {
         const finalResult = decisionParamOne + decisionParamTwo + decisionParamThree + decisionParamFour + decisionParamFive + decisionParamSix + decisionParamSeven;
         const finalInPercentage = ((finalResult /7)*100).toFixed(2)  + '%';
 
-
-        console.log('final Decision',';','1', ';','2', ';','3', ';','4', ';','5', ';','6', ';','7');
-        console.log(
+        calculatedText.push('final Decision',';','1', ';','2', ';','3', ';','4', ';','5', ';','6', ';','7', '\n');
+        calculatedText.push(
             '',';',
             GeneralawayGeneralPergcentageOfVitoryMenusHomeGeneralPergcentageOfVitory.toFixed(2) + '%', ';',
             awayPercentageOfVictoryMinusHomePercentageOfVictory.toFixed(2) + '%', ';',
@@ -377,9 +382,9 @@ module.exports = {
             resultHomeWinningPercentageMinusAwayWinningPercentage.toFixed(2) + '%', ';',
             probabilityOfLocalTeamScoreAGoal.toFixed(2) + '%', ';',
             resultAwayFailedToScoreInPercentagePlusHomeCleanSheetInPercentageDivideTwo.toFixed(2) + '%', ';',
-            avgGoalScoredAndConceded.toFixed(2));
+            avgGoalScoredAndConceded.toFixed(2), '\n');
 
-        console.log(
+        calculatedText.push(
             '',';',
             decisionParamOne, ';',
             decisionParamTwo, ';',
@@ -389,13 +394,39 @@ module.exports = {
             decisionParamSix, ';',
             decisionParamSeven, ';',
             finalResult,';',
-            finalInPercentage
+            finalInPercentage, '\n'
         );
 
-        console.log('\n');
+        calculatedText.push('\n');
 
-        console.log('-',';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';');
-        console.log('-',';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';','-', ';');
+        calculatedText.push(
+            '****************',';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************',';',
+            '****************', '\n'
+        );
+
+        calculatedText.push(
+            '****************',';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************', ';',
+            '****************',';',
+            '****************', '\n'
+        );
+
+
+        return calculatedText.join(' ');
 
     },
     getPercentageOfVictoryPlusPercentageOfLoosingAcrossTwo(data1, data2) {
