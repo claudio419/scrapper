@@ -24,6 +24,11 @@ Scenario('Extract visible Data from SoccerStats', async ({ I, soccerStatsPage, c
                 soccerStatsPage.goToDailyMachtPage(matchdayParams);
 
                 let playingLeagues = await soccerStatsPage.getPlayingLeagues(soccerStatsPage.locators.matchsTrsVisible);
+                let hiddenMatchs = await soccerStatsPage.getPlayingLeagues(soccerStatsPage.locators.matchsTrsHidden);
+                playingLeagues.push(... hiddenMatchs);
+
+                I.say(`PlayinLeagues are ${playingLeagues.length}`);
+
                 let matchesWithHomeAwayData = await soccerStatsPage.fillHomeAwayDataByPlayingLeagues(playingLeagues);
                 soccerStatsPage.goToDailyMachtPage(matchdayParams);
                 let matchesWithFirstGoalStats = await soccerStatsPage.fillFirstGoalStats(matchesWithHomeAwayData);
@@ -31,15 +36,6 @@ Scenario('Extract visible Data from SoccerStats', async ({ I, soccerStatsPage, c
 
                 matchesWithFirstGoalStats.forEach((league)=> {
                    docs.push(league.toJson());
-                });
-
-                playingLeagues = await soccerStatsPage.getPlayingLeagues(soccerStatsPage.locators.matchsTrsHidden);
-                matchesWithHomeAwayData = await soccerStatsPage.fillHomeAwayDataByPlayingLeagues(playingLeagues);
-                soccerStatsPage.goToDailyMachtPage(matchdayParams);
-                matchesWithFirstGoalStats = await soccerStatsPage.fillFirstGoalStats(matchesWithHomeAwayData);
-
-                matchesWithFirstGoalStats.forEach((league)=> {
-                        docs.push(league.toJson());
                 });
 
                 const jsonContent = JSON.stringify(docs);
@@ -52,6 +48,5 @@ Scenario('Extract visible Data from SoccerStats', async ({ I, soccerStatsPage, c
                 }
 
         }
-
 
 });

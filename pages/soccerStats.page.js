@@ -45,6 +45,7 @@ module.exports = {
         let away = '';
 
         for(let x = 0; x < tableMatchs.length; x++) {
+
             const element = this.tdsHandler(tableMatchs[x]);
             if (!element) {
                 continue;
