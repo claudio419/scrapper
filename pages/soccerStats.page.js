@@ -19,18 +19,15 @@ module.exports = {
         firstGoalStatsTables: '#btable > tbody', // it hat many tables, I should iterate it
     },
 
-    goToDailyMachtPageWithTermAndConditions() {
-       this.goToDailyMachtPage();
+    goToDailyMachtPageWithTermAndConditions(matchDayParam) {
+       this.goToDailyMachtPage(matchDayParam);
         I.click('AGREE', '.qc-cmp2-summary-buttons')
 
     },
 
-    goToDailyMachtPage() {
-        //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=5');
-        I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=4');
-        //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=3');
-        //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=2');
-        //I.amOnPage('https://www.soccerstats.com/matches.asp?matchday=1');
+    goToDailyMachtPage(matchDayParam) {
+
+        I.amOnPage(`https://www.soccerstats.com/matches.asp?matchday=${matchDayParam}`);
     },
 
     goToPageByPath(path) {
@@ -83,7 +80,7 @@ module.exports = {
     },
 
     async fillHomeAwayDataByPlayingLeagues(playingLeagues) {
-        this.goToDailyMachtPage()
+
 
         for(let l = 0; l < playingLeagues.length; l++) {
 
