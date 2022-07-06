@@ -19,6 +19,7 @@ Feature('SoccerStats Data extraction').tag('@scrapper');
 Data(nextThreePages).Scenario('Extract Data from SoccerStats', async ({ I, current, soccerStatsPage, clientPage}) => {
 
         if (fs.existsSync('./output/scrapperSoccerStats_' + current.date +'.json')) {
+                I.say('File exist ');
                 return;
         }
 
@@ -37,9 +38,9 @@ Data(nextThreePages).Scenario('Extract Data from SoccerStats', async ({ I, curre
         I.say(`PlayinLeagues are ${playingLeagues.length}`);
 
         let matchesData = await soccerStatsPage.fillHomeAwayDataByPlayingLeagues(playingLeagues);
-        soccerStatsPage.goToDailyMachtPage(matchdayParams);
+        soccerStatsPage.goToDailyMachtPage(current.param);
         matchesData = await soccerStatsPage.fillFirstGoalStats(matchesData);
-        soccerStatsPage.goToDailyMachtPage(matchdayParams);
+        soccerStatsPage.goToDailyMachtPage(current.param);
 
         matchesData.forEach((league)=> {
            docs.push(league.toJson());
