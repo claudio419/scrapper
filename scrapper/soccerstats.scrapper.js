@@ -29,12 +29,12 @@ Scenario('Extract visible Data from SoccerStats', async ({ I, soccerStatsPage, c
 
                 I.say(`PlayinLeagues are ${playingLeagues.length}`);
 
-                let matchesWithHomeAwayData = await soccerStatsPage.fillHomeAwayDataByPlayingLeagues(playingLeagues);
+                let matchesData = await soccerStatsPage.fillHomeAwayDataByPlayingLeagues(playingLeagues);
                 soccerStatsPage.goToDailyMachtPage(matchdayParams);
-                let matchesWithFirstGoalStats = await soccerStatsPage.fillFirstGoalStats(matchesWithHomeAwayData);
+                matchesData = await soccerStatsPage.fillFirstGoalStats(matchesData);
                 soccerStatsPage.goToDailyMachtPage(matchdayParams);
 
-                matchesWithFirstGoalStats.forEach((league)=> {
+                matchesData.forEach((league)=> {
                    docs.push(league.toJson());
                 });
 
