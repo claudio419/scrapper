@@ -35,7 +35,7 @@ Data(nextThreePages).Scenario('Extract Data from SoccerStats', async ({ I, curre
         playingLeagues.push(... hiddenMatchs);
         hiddenMatchs = '';
 
-        I.say(`PlayinLeagues are ${playingLeagues.length}`);
+        I.say(`PlayingLeagues are ${playingLeagues.length}`);
 
         let matchesData = await soccerStatsPage.fillHomeAwayDataByPlayingLeagues(playingLeagues);
         soccerStatsPage.goToDailyMachtPage(current.param);
@@ -59,4 +59,4 @@ Data(nextThreePages).Scenario('Extract Data from SoccerStats', async ({ I, curre
         playingLeagues = '';
 
 
-});
+}).retry(5);
