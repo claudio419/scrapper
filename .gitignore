@@ -1,4 +1,4 @@
-.env.defaults
+.env
 .idea/
 jsconfig.json
 node_modules/
