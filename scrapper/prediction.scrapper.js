@@ -25,11 +25,17 @@ Data(nextThreePredictions).Scenario('Prediction', async ({ I, current, predictio
         return;
     }
 
+
     const json =JSON.parse(fs.readFileSync('./output/scrapperSoccerStats_' + current.date +'.json', 'utf8'));
 
     const predictions = predictionPage.predictResultByLeagues(json);
 
     try {
+
+        if (!fs.existsSync('./predictionMatches/')) {
+            fs.mkdirSync('./predictionMatches/');
+        }
+
         fs.writeFileSync('./predictionMatches/prediction_for_' + current.date +'.csv', predictions, 'utf8');
     } catch (err) {
         console.error(err);
