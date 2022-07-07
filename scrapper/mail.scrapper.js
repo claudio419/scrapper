@@ -1,10 +1,11 @@
 require('dotenv-defaults');
+const fs = require("fs");
 const nodemailer = require("nodemailer");
 
 
 Feature('mails').tag('@mail');
 
-Scenario('try to send email', async ({ I, soccerStatsPage, clientPage}) => {
+Scenario('Send prediction reports to emails', async ({ I}) => {
 
     let transporter = nodemailer.createTransport({
         host: process.env.HOST,
@@ -16,22 +17,33 @@ Scenario('try to send email', async ({ I, soccerStatsPage, clientPage}) => {
         },
     });
 
+    const files = fs.readdirSync('./predictionMatches/');
+
+    if (files.length < 1) {
+        I.say('Prediction files not found');
+        return;
+    }
+
+    const attachmentsFiles = [];
+    for (let x=0; x <files.length; x++) {
+        const attachment = {filename:files[x], path: './predictionMatches/' + files[x]};
+        attachmentsFiles.push(attachment);
+    }
+
     let info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <'+  process.env.FROM_MAIL + '>',
+        from: '"🍀 La suerte te Bendiga 🍀" <'+  process.env.FROM_MAIL + '>',
         to: process.env.TO_MAILS,
         bcc: process.env.BCC_MAILS,
-        subject: "Hello ✔",
-        text: "Hello world?",
-        html: "<b>Hello world?</b>",
-        attachments: [
-            {
-                filename: 'prediction_for_2022_7_7.csv',
-                path: './predictionMatches/prediction_for_2022_7_7.csv',
-            },
-
-        ]
+        subject: "Predicciones  💰💰💰💰",
+        text: "Cabezon, Ganemos mucho 💵 💴 💶 💷",
+        attachments: attachmentsFiles,
     });
 
-    console.log("Message sent: %s", info.messageId);
+    I.say('Email was sending');
+
+    if (attachmentsFiles) {
+        fs.rm('./predictionMatches/', { recursive: true });
+        I.say('Files delete');
+    }
 
 })
