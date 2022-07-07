@@ -42,7 +42,7 @@ Scenario('Send prediction reports to emails', async ({ I}) => {
     I.say('Email was sending');
 
     if (attachmentsFiles) {
-        fs.rm('./predictionMatches/', { recursive: true });
+        fs.rmSync('./predictionMatches/', { recursive: true });
         I.say('Files delete');
     }
 
