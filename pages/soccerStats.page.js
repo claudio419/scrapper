@@ -322,11 +322,11 @@ module.exports = {
         const trsTable = await I.grabHTMLFromAll(tableSelector);
         for(let x = 0; x < trsTable.length; x++) {
             let arr = trsTable[x].split('</td>');
-            const teamName = arr[1].replace('\n<td style="padding-left:4px;">\n', '').replace('\n','');
-            const gamePlayed = arr[2].replace('\n<td align="center">\n<font color="green">\n', '').replace('\n</font>\n', '');
-            const winning = arr[3].replace('\n<td align="center">\n', '').replace('\n', '').replace(' ', '');
-            const draw = arr[4].replace('\n<td align="center">\n', '').replace('\n', '').replace(' ', '');
-            const loosing = arr[5].replace('\n<td align="center">\n', '').replace('\n', '').replace(' ', '');
+            const teamName = arr[1].replaceAll('\n<td style="padding-left:4px;">\n', '').replaceAll('\n','');
+            const gamePlayed = arr[2].replaceAll('\n<td align="center">\n<font color="green">\n', '').replaceAll('\n</font>\n', '');
+            const winning = arr[3].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
+            const draw = arr[4].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
+            const loosing = arr[5].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
             position = new Position(teamName, gamePlayed, winning, draw, loosing);
             table.push(position);
         }
