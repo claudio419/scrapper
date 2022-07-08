@@ -1,3 +1,4 @@
+require('dotenv-defaults');
 const CountryLeague = require('../soccerStats/countryLeague');
 const FirstGoalStats = require('../soccerStats/firstGoalStats');
 const FirstGoalStatsTeam = require('../soccerStats/firstGoalStatsTeam');
@@ -27,11 +28,11 @@ module.exports = {
 
     goToDailyMachtPage(matchDayParam) {
 
-        I.amOnPage(`https://www.soccerstats.com/matches.asp?matchday=${matchDayParam}`);
+        I.amOnPage(`${process.env.SOCCERSTATS_URL}matches.asp?matchday=${matchDayParam}`);
     },
 
     goToPageByPath(path) {
-        I.amOnPage('https://www.soccerstats.com/' + path);
+        I.amOnPage(`${process.env.SOCCERSTATS_URL}` + path);
     },
 
     async getPlayingLeagues(selector) {

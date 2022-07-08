@@ -1,4 +1,3 @@
-const {firefox} = require("playwright");
 module.exports = {
     predictResultByLeagues(arrayLeagues) {
         const predictionMatches = [];
