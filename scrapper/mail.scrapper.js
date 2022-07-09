@@ -9,11 +9,11 @@ today.setDate(new Date().getDate()+1); // Tomorrow
 const dayDateTomorrow = 'prediction_for_' + today.getFullYear()+'_'+(today.getMonth()+1)+'_'+today.getDate() + '.csv';
 
 today.setDate(new Date().getDate()+2); // After tomorrow
-const dayDateafterTomorrow =  'prediction_for_' + today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate() + '.csv';
+const dayDateAfterTomorrow =  'prediction_for_' + today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate() + '.csv';
 
 const filesDate = [];
 
-filesDate.push(dayDateToday, dayDateTomorrow, dayDateafterTomorrow)
+filesDate.push(dayDateToday, dayDateTomorrow, dayDateAfterTomorrow)
 
 
 Feature('mails').tag('@mail');
