@@ -100,17 +100,17 @@ module.exports = {
             calculatedData.generalWinning = teamData.generalResult?.winning;
             calculatedData.generalDraw = teamData.generalResult?.draw;
             calculatedData.generalLoosing = teamData.generalResult?.loosing;
-            calculatedData.generalWinningPerncetage = this.getAverage(teamData.generalResult.winning, teamData.generalResult.gamePlayed);
-            calculatedData.generalDrawPerncetage = this.getAverage(teamData.generalResult.draw, teamData.generalResult.gamePlayed);
-            calculatedData.generalLoosingPerncetage = this.getAverage(teamData.generalResult.loosing, teamData.generalResult.gamePlayed);
+            calculatedData.generalWinningPerncetage = this.getAverage(teamData.generalResult?.winning, teamData.generalResult?.gamePlayed);
+            calculatedData.generalDrawPerncetage = this.getAverage(teamData.generalResult?.draw, teamData.generalResult?.gamePlayed);
+            calculatedData.generalLoosingPerncetage = this.getAverage(teamData.generalResult?.loosing, teamData.generalResult?.gamePlayed);
 
-            calculatedData.gamePlayed = teamData.gameResult.gamePlayed;
-            calculatedData.winning = teamData.gameResult.winning;
-            calculatedData.draw = teamData.gameResult.draw;
-            calculatedData.loosing = teamData.gameResult.loosing;
-            calculatedData.winningPerncetage = this.getAverage(teamData.gameResult.winning, teamData.gameResult.gamePlayed);
-            calculatedData.drawPerncetage = this.getAverage(teamData.gameResult.draw, teamData.gameResult.gamePlayed);
-            calculatedData.loosingPerncetage = this.getAverage(teamData.gameResult.loosing, teamData.gameResult.gamePlayed);
+            calculatedData.gamePlayed = teamData.gameResult?.gamePlayed;
+            calculatedData.winning = teamData.gameResult?.winning;
+            calculatedData.draw = teamData.gameResult?.draw;
+            calculatedData.loosing = teamData.gameResult?.loosing;
+            calculatedData.winningPerncetage = this.getAverage(teamData.gameResult?.winning, teamData.gameResult?.gamePlayed);
+            calculatedData.drawPerncetage = this.getAverage(teamData.gameResult?.draw, teamData.gameResult?.gamePlayed);
+            calculatedData.loosingPerncetage = this.getAverage(teamData.gameResult?.loosing, teamData.gameResult?.gamePlayed);
             calculatedData.firstGoalStats = teamData.firstGoalStats;
             calculatedData.openingGoalScored = teamData.openingGoalScored;
             calculatedData.openingGoalConceded = teamData.openingGoalConceded;
@@ -127,16 +127,20 @@ module.exports = {
         } catch (e) {
             console.log('It break on: ',teamData.name);
             console.log(teamData);
+            console.log(e);
         }
 
     },
     getGeneralResult(homeTable, awayTable) {
         const generalResult = [];
         for(let x =0; x < homeTable.length; x++) {
+
+            let error = '';
             try {
                 const result= [];
                 result.teamName = homeTable[x].teamName;
                 const awayResult =  awayTable.filter( element => element.teamName.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim() === result.teamName.replaceAll('-', ' ').replaceAll('\'', ' ').replaceAll('`', ' ').trim())[0];
+                error = awayResult;
 
                 result.gamePlayed = parseInt(homeTable[x].gamePlayed) + parseInt(awayResult.gamePlayed);
                 result.winning = parseInt(homeTable[x].winning) + parseInt(awayResult.winning);
@@ -146,7 +150,7 @@ module.exports = {
             } catch (e) {
                 console.log('Error on getGeneralResult');
                 console.log('x:', x, homeTable[x]);
-                console.log('awayResult', awayResult)
+                console.log('awayResult', error)
             }
 
 
