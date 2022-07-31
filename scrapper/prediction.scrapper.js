@@ -11,9 +11,17 @@ const dayDateTomorrow = today.getFullYear()+'_'+(today.getMonth()+1)+'_'+today.g
 today.setDate(new Date().getDate()+2); // After tomorrow
 const dayDateafterTomorrow =  today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate();
 
+today.setDate(new Date().getDate()+3); // After 3 days
+const afterFourDay =  today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate();
+
+today.setDate(new Date().getDate()+4); // After 4 days
+const afterFiveDay =  today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate();
+
 nextThreePredictions.add([dayDateToday]);
 nextThreePredictions.add([dayDateTomorrow]);
 nextThreePredictions.add([dayDateafterTomorrow]);
+nextThreePredictions.add([afterFourDay]);
+nextThreePredictions.add([afterFiveDay]);
 
 const json1 = require('../output/scrapperSoccerStats_2022_7_7.json');
 Feature('Start Prediction for SoccerStats').tag('@prediction');

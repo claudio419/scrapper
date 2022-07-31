@@ -204,7 +204,19 @@ module.exports = {
         // -------------------------------------------------
         calculatedText.push('General',';', 'PJ',';', 'G',';', 'E',';', 'P',';', 'generalWinningPerncetage', ';', 'generalDrawPerncetage', ';', 'generalLoosingPerncetage', ';','porcentaje  victorias VISITA + porcentaje DERROTAS local) / 2', ';','',';','Resta I4-I3 (57%-22%)', ';', 'generalQuikView WENN(I3<25%-"1"-WENN(I3>24%-"0"))', '\n');
 
-        calculatedText.push(homeFullData.team,';', homeFullData.generalGamePlayed,';', homeFullData.generalWinning,';', homeFullData.generalDraw,';', homeFullData.generalLoosing,';', homeFullData.generalWinningPerncetage, ';', homeFullData.generalDrawPerncetage, ';', homeFullData.generalLoosingPerncetage, ';',homeGeneralPergcentageOfVitory.toFixed(2)+'%', ';','',';',GeneralawayGeneralPergcentageOfVitoryMenusHomeGeneralPergcentageOfVitory.toFixed(2)+'%', ';', homeGeneralQuikView, ';', homeMargen1.toFixed(2) + '%', '\n');
+        calculatedText.push(
+            homeFullData.team,';',
+            homeFullData.generalGamePlayed,';',
+            homeFullData.generalWinning,';',
+            homeFullData.generalDraw,';',
+            homeFullData.generalLoosing,';',
+            homeFullData.generalWinningPerncetage, ';',
+            homeFullData.generalDrawPerncetage, ';',
+            homeFullData.generalLoosingPerncetage, ';',
+            homeGeneralPergcentageOfVitory.toFixed(2)+'%', ';','',';',
+            GeneralawayGeneralPergcentageOfVitoryMenusHomeGeneralPergcentageOfVitory.toFixed(2)+'%', ';',
+            homeGeneralQuikView, ';',
+            homeMargen1.toFixed(2) + '%', '\n');
         calculatedText.push(awayFullData.team,';', awayFullData.generalGamePlayed,';', awayFullData.generalWinning,';', awayFullData.generalDraw,';', awayFullData.generalLoosing,';', awayFullData.generalWinningPerncetage, ';', awayFullData.generalDrawPerncetage, ';', awayFullData.generalLoosingPerncetage, ';',awayGeneralPergcentageOfVitory.toFixed(2)+'%', ';','',';','', ';', awayGeneralQuikView, ';', awayMargen1.toFixed(2) + '%', '\n');
         calculatedText.push('\n');
 

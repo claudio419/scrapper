@@ -11,9 +11,16 @@ const dayDateTomorrow = 'prediction_for_' + today.getFullYear()+'_'+(today.getMo
 today.setDate(new Date().getDate()+2); // After tomorrow
 const dayDateAfterTomorrow =  'prediction_for_' + today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate() + '.csv';
 
+today.setDate(new Date().getDate()+3); // After 3 days
+const afterFourDay =  'prediction_for_' + today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate() + '.csv';
+
+
+today.setDate(new Date().getDate()+4); // After 4 days
+const afterFiveDay =  'prediction_for_' + today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate() + '.csv';
+
 const filesDate = [];
 
-filesDate.push(dayDateToday, dayDateTomorrow, dayDateAfterTomorrow)
+filesDate.push(dayDateToday, dayDateTomorrow, dayDateAfterTomorrow, afterFourDay, afterFiveDay)
 
 
 Feature('mails').tag('@mail');

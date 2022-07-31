@@ -10,9 +10,18 @@ const dayDateTomorrow = today.getFullYear()+'_'+(today.getMonth()+1)+'_'+today.g
 today.setDate(new Date().getDate()+2); // After tomorrow
 const dayDateafterTomorrow =  today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate();
 
+today.setDate(new Date().getDate()+3); // After 3 days
+const afterFourDay =  today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate();
+
+today.setDate(new Date().getDate()+4); // After 4 days
+const afterFiveDay =  today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.getDate();
+
+
 nextThreePages.add(['1', dayDateToday]);
 nextThreePages.add(['2', dayDateTomorrow]);
 nextThreePages.add(['3', dayDateafterTomorrow]);
+nextThreePages.add(['4', afterFourDay]);
+nextThreePages.add(['5', afterFiveDay]);
 
 Feature('SoccerStats Data extraction').tag('@scrapper');
 
