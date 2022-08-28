@@ -17,7 +17,8 @@ exports.config = {
     I: './steps_file.js',
     soccerStatsPage: './pages/soccerStats.page.js',
     clientPage:  './client/client.page.js',
-    predictionPage: './predictions/prediction.page.js'
+    predictionPage: './predictions/prediction.page.js',
+    predictionNewPage: './predictions/predictionNew.page.js'
   },
   bootstrap: null,
   mocha: {},

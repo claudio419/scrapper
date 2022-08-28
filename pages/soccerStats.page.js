@@ -22,6 +22,7 @@ module.exports = {
 
     goToDailyMachtPageWithTermAndConditions(matchDayParam) {
        this.goToDailyMachtPage(matchDayParam);
+       I.waitForVisible('.qc-cmp2-summary-buttons', 500);
         I.click('AGREE', '.qc-cmp2-summary-buttons')
 
     },
@@ -324,9 +325,9 @@ module.exports = {
         for(let x = 0; x < trsTable.length; x++) {
             let arr = trsTable[x].split('</td>');
             const teamName = arr[1].replaceAll('\n<td style="padding-left:4px;">\n', '').replaceAll('\n','');
-            const gamePlayed = arr[2].replaceAll('\n<td align="center">\n<font color="green">\n', '').replaceAll('\n</font>\n', '');
+            const gamePlayed = arr[2].replaceAll('\n<td align="center">\n<font color="green">\n', '').replaceAll('\n</font>\n', '').replaceAll('\n<td align=\"center\">\n<font color=\"green\"> \n', '');
             const winning = arr[3].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
-            const draw = arr[4].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
+            const draw = arr[4].replaceAll('<tdalign="center">', '').replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
             const loosing = arr[5].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
             position = new Position(teamName, gamePlayed, winning, draw, loosing);
             table.push(position);

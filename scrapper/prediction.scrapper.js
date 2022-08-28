@@ -20,10 +20,9 @@ const afterFiveDay =  today.getFullYear()+'_'+(today.getMonth()+1)+'_'+ today.ge
 nextThreePredictions.add([dayDateToday]);
 nextThreePredictions.add([dayDateTomorrow]);
 nextThreePredictions.add([dayDateafterTomorrow]);
-nextThreePredictions.add([afterFourDay]);
-nextThreePredictions.add([afterFiveDay]);
+//nextThreePredictions.add([afterFourDay]);
+//nextThreePredictions.add([afterFiveDay]);
 
-const json1 = require('../output/scrapperSoccerStats_2022_7_7.json');
 Feature('Start Prediction for SoccerStats').tag('@prediction');
 
 Data(nextThreePredictions).Scenario('Prediction', async ({ I, current, predictionPage}) => {
@@ -32,7 +31,6 @@ Data(nextThreePredictions).Scenario('Prediction', async ({ I, current, predictio
         I.say('File exist ');
         return;
     }
-
 
     const json =JSON.parse(fs.readFileSync('./output/scrapperSoccerStats_' + current.date +'.json', 'utf8'));
 
