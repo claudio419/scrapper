@@ -19,7 +19,7 @@ class prediction60away extends base {
 
             league.matches.forEach((match) => {
 
-                if (parseInt(match.homeTeam.gamePlayed) < 6) {
+                if (parseInt(match.homeTeam.gamePlayed) < this.minGamePlayed) {
                     return;
                 }
 
@@ -74,10 +74,10 @@ class prediction60away extends base {
         const awayGeneralLoosingAvgDecision = this.applyDecision(awayGeneralLoosingAvg);
 
         //calculated result
-        const homeWinningAvg = (generalResultHomeAway.homeResult.winningPercentage - this.homeFixedPercentageForWinning).toFixed(2);
-        const homeLoosingAvg = (this.homeFixedPercentageForLoosing - generalResultHomeAway.homeResult.loosingPercentage).toFixed(2);
-        const awayWinningAvg = (this.awayFixedPercentageForWinning - generalResultHomeAway.awayResult.winningPercentage).toFixed(2);
-        const awayLoosingAvg = (generalResultHomeAway.awayResult.loosingPercentage - this.awayFixedPercentageForLoosing).toFixed(2);
+        const homeWinningAvg = (this.homeFixedPercentageForWinning - generalResultHomeAway.homeResult.winningPercentage).toFixed(2);
+        const homeLoosingAvg = (generalResultHomeAway.homeResult.loosingPercentage - this.homeFixedPercentageForLoosing).toFixed(2);
+        const awayWinningAvg = (generalResultHomeAway.awayResult.winningPercentage - this.awayFixedPercentageForWinning).toFixed(2);
+        const awayLoosingAvg = (this.awayFixedPercentageForLoosing - generalResultHomeAway.awayResult.loosingPercentage).toFixed(2);
         const homeWinningAvgDecision = this.applyDecision(homeWinningAvg);
         const homeLoosingAvgDecision = this.applyDecision(homeLoosingAvg);
         const awayWinningAvgDecision = this.applyDecision(awayWinningAvg);

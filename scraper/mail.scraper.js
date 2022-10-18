@@ -20,8 +20,7 @@ const afterFiveDay =  'prediction_for_' + today.getFullYear()+'_'+(today.getMont
 
 const filesDate = [];
 
-filesDate.push(dayDateToday, dayDateTomorrow, dayDateAfterTomorrow)
-
+filesDate.push(dayDateToday, dayDateTomorrow, dayDateAfterTomorrow);
 
 Feature('mails').tag('@mail');
 

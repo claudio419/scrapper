@@ -23,7 +23,7 @@ const filesDate = [];
 filesDate.push(dayDateToday, dayDateTomorrow, dayDateAfterTomorrow, afterFourDay, afterFiveDay)
 
 
-Feature('mailsaa').tag('@newmail');
+Feature('newmails').tag('@newmail');
 
 Scenario('Send prediction reports to emails', async ({ I}) => {
 

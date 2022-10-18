@@ -21,6 +21,7 @@ class predictionBase {
         this.awayFixedPercentageForWinning = awayFixedPercentageForWinning;
         this.awayFixedPercentageForLoosing = awayFixedPercentageForLoosing;
         this.filterNumber                  = filterNumber;
+        this.minGamePlayed = 3;// use 3 because it calculate 3 * 2 (home and away)
     }
     predictResultByLeagues(arrayLeagues) {
 
@@ -36,7 +37,7 @@ class predictionBase {
 
             league.matches.forEach((match) => {
 
-                if (parseInt(match.homeTeam.gamePlayed) < 6) {
+                if (parseInt(match.homeTeam.gamePlayed) < this.minGamePlayed) { // use 3 because it calculate 3 * 2 (home and away)
                     return;
                 }
 
@@ -152,7 +153,7 @@ class predictionBase {
     getTableByName(table, name) {
 
         return table.find(
-            element => element.teamName.replaceAll('`', '').replaceAll("'", '').replaceAll(' ', '').replaceAll('-', '') === name.replaceAll('`', '').replaceAll("'", '').replaceAll(' ', '').replaceAll('-', '')
+            element => element.teamName.replaceAll('-', '').replaceAll('`', '').replaceAll("'", '').replaceAll(' ', '').replaceAll('-', '') === name.replaceAll('-', '').replaceAll('`', '').replaceAll("'", '').replaceAll(' ', '').replaceAll('-', '')
         );
 
     }
