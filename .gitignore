@@ -7,3 +7,5 @@ output/
 yarn.lock
 bkpJson/
 predictionMatches/
+predictionMatchesNew/
+tmp/

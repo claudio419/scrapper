@@ -22,6 +22,7 @@ module.exports = {
 
     goToDailyMachtPageWithTermAndConditions(matchDayParam) {
        this.goToDailyMachtPage(matchDayParam);
+       I.waitForVisible('.qc-cmp2-summary-buttons', 500);
         I.click('AGREE', '.qc-cmp2-summary-buttons')
 
     },
@@ -31,10 +32,62 @@ module.exports = {
         I.amOnPage(`${process.env.SOCCERSTATS_URL}matches.asp?matchday=${matchDayParam}`);
     },
 
-    goToPageByPath(path) {
-        I.amOnPage(`${process.env.SOCCERSTATS_URL}` + path);
-    },
+    async goToPageByPath(path) {
+        console.log('url to go: ', `${process.env.SOCCERSTATS_URL}` + path)
+        I.amOnPage(`${process.env.SOCCERSTATS_URL}${path}`);
+        const hasButton = await I.grabNumberOfVisibleElements('#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv');
+        if (hasButton > 0) {
+            I.click('#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv')
+        }
+        },
 
+    async getPlayedGames(selector) {
+        const playedGames = [];
+        let playedMatches = [];
+
+        const tableMatchs = await I.grabHTMLFromAll(selector);
+
+        let currentLeague = '';
+        let home = '';
+        let away = '';
+
+        for(let x = 0; x < tableMatchs.length; x++) {
+        //for(let x = 0; x < 15; x++) {
+
+            const element = this.gamesPlayedtdsHandler(tableMatchs[x]);
+            if (!element) {
+                continue;
+            }
+
+            if(element.dataType === 'League' &&  !currentLeague) {
+                currentLeague = element;
+                continue
+            }
+
+            if(element.dataType === 'League' && this.isNewLeague(currentLeague.league, element.leaague)) {
+                currentLeague.match = playedMatches;
+                playedGames.push(currentLeague)
+
+
+                currentLeague = element;
+                playedMatches = []
+                continue
+            }
+
+            if (element.dataType === 'Home') {
+                home = element;
+                continue;
+            }
+
+            if (element.dataType === 'Away') {
+                away = element;
+            }
+
+            playedMatches.push({'home': home, 'away': away})
+        }
+
+        return playedGames;
+    },
     async getPlayingLeagues(selector) {
 
         const playingLeagues = [];
@@ -82,28 +135,44 @@ module.exports = {
     },
 
     async fillHomeAwayDataByPlayingLeagues(playingLeagues) {
-
-
         for(let l = 0; l < playingLeagues.length; l++) {
 
             try {
-                if(playingLeagues[l].getMatches().length === 0) {
+
+                if(this.isLeagueInBlackList(playingLeagues[l].league)) {
+                    console.log ('league', playingLeagues[l].league, 'skipped');
+                    continue;
+                }
+                I.say('league is not in black list');
+
+                if(playingLeagues[l].matches.length === 0) {
                     continue;
                 }
 
-                this.goToPageByPath(playingLeagues[l].statsUrl);
+                I.say('league hat matches');
+
+                if (!playingLeagues[l].statsUrl) {
+                    console.log('Error league')
+                    console.log(playingLeagues[l]);
+                    continue;
+                }
+
+                I.say('go to url: ' + playingLeagues[l].statsUrl);
+                await this.goToPageByPath(playingLeagues[l].statsUrl);
+
                 const homeAwayUrl = await I.grabAttributeFrom(this.locators.homeAwayLink, 'href');
+                I.say('homeAwayurl' + homeAwayUrl );
                 I.amOnPage(homeAwayUrl);
 
                 const homeTable = await this.getPositionsTable(this.locators.home);
                 const awayTable = await this.getPositionsTable(this.locators.away);
 
-                playingLeagues[l].setHomeTable(homeTable);
-                playingLeagues[l].setAwayTable(awayTable);
+                playingLeagues[l].homeTable = homeTable;
+                playingLeagues[l].awayTable = awayTable;
 
             } catch (e) {
-                console.log(e);
-                console.log(playingLeagues[l].league);
+                console.log('Exception: ',e);
+                console.log(playingLeagues[l]);
             }
        }
 
@@ -118,7 +187,19 @@ module.exports = {
         for(let l = 0; l < playingLeagues.length; l++) {
 
             try {
-                if(playingLeagues[l].getMatches().length === 0) {
+
+                if(this.isLeagueInBlackList(playingLeagues[l].league)) {
+                    console.log ('league', playingLeagues[l].league, 'skipped');
+                    continue;
+                }
+
+                if(playingLeagues[l].matches?.length === 0) {
+                    continue;
+                }
+
+                if (!playingLeagues[l].statsUrl) {
+                    console.log('Error league')
+                    console.log(playingLeagues[l]);
                     continue;
                 }
 
@@ -131,6 +212,7 @@ module.exports = {
                 }
 
                 const firstGoalStatsUrl = await I.grabAttributeFrom(this.locators.firstGoalStatsButton, 'href');
+                console.log('firstGoalStatsUrl: ', firstGoalStatsUrl);
 
                 I.amOnPage(firstGoalStatsUrl);
 
@@ -142,7 +224,7 @@ module.exports = {
                 const awayConcededGoalTable = this.getOpeningGoalsScoredTable(allTable[6]);
 
                 firstGoalStats = new FirstGoalStats(firstGoalStatsTable, homeOpeningGoalScoredTable, awayOpeningGoalScoredTable, homeConcededGoalTable, awayConcededGoalTable)
-                playingLeagues[l].setFirstGoalStats(firstGoalStats);
+                playingLeagues[l].firstGoalStats = firstGoalStats;
             } catch (e) {
                 console.log(playingLeagues[l].league);
                 console.log(e);
@@ -168,12 +250,92 @@ module.exports = {
 
     },
 
+    gamesPlayedtdsHandler(tds) {
+        const totalTds = this.tdsCounter(tds);
+
+        switch (totalTds) {
+            case 2: // Number of tds to see league
+                return this.getPlayedLeagueName(tds);
+            case 5:// number of tds to home match
+                return this.getPlayedHomeTeamName(tds);
+            case 4: // number of tds to away match
+                return this.getPlayedAwayTeamName(tds);
+        }
+
+        return '';
+    },
+
     tdsCounter(tds) {
         let arr = tds.split('</td>');
         arr = arr.filter(element => {
             return element !== '';
         });
         return arr.length;
+    },
+
+    getPlayedLeagueName(tds){
+        try {
+
+            const hasImg = tds.search('<img src=');
+            const isPlayOff = tds.search('play-off');
+
+            if (hasImg < 0) {
+                return null;
+            }
+
+            if (isPlayOff >= 0) {
+                return null
+            }
+
+            const html = tds.split('<font size="2">');
+            const leaague = html[1].split('</font>');
+
+           return {
+               'dataType': 'League',
+               'leaague': leaague[0]
+           }
+
+
+        } catch (e) {
+            console.log('Error!!!!!!!!!!!!!!!!!!!!!!');
+            console.log(e);
+            console.log(tds);
+            return '';
+        }
+    },
+    getPlayedHomeTeamName(tds){
+        let playedTeam = this.getPlayedHomeAwayTeamName(tds);
+        playedTeam.dataType = 'Home';
+
+        return playedTeam
+    },
+    getPlayedAwayTeamName(tds){
+        let playedTeam = this.getPlayedHomeAwayTeamName(tds);
+        playedTeam.dataType = 'Away';
+
+        return playedTeam
+    },
+    getPlayedHomeAwayTeamName(tds){
+        try {
+            const html = tds.split('</td>');
+            const teamName = html[0].replaceAll('<td class="steam">', '').replaceAll('<td class="steam" width="110">', '');
+            const result = html[1].replaceAll('<td align="center" valign="middle"><b>', '')
+                .replaceAll('</b>', '')
+                .replaceAll('<td width="55" valign="middle" align="center"><b>', '')
+                .replaceAll('<td align="center" valign="middle" width="55"><b>>', '')
+                .replaceAll('<td align=\"center\" valign=\"middle\" width=\"55\"><b>', '');
+
+            return {
+                'teamName': teamName,
+                'result': result
+            }
+
+        } catch (e) {
+            console.log('Error!!!!!!!!!!!!!!!!!!!!!!');
+            console.log(e);
+            console.log(tds);
+            return '';
+        }
     },
 
     processTitle(tds){
@@ -324,9 +486,9 @@ module.exports = {
         for(let x = 0; x < trsTable.length; x++) {
             let arr = trsTable[x].split('</td>');
             const teamName = arr[1].replaceAll('\n<td style="padding-left:4px;">\n', '').replaceAll('\n','');
-            const gamePlayed = arr[2].replaceAll('\n<td align="center">\n<font color="green">\n', '').replaceAll('\n</font>\n', '');
+            const gamePlayed = arr[2].replaceAll('\n<td align="center">\n<font color="green">\n', '').replaceAll('\n</font>\n', '').replaceAll('\n<td align=\"center\">\n<font color=\"green\"> \n', '');
             const winning = arr[3].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
-            const draw = arr[4].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
+            const draw = arr[4].replaceAll('<tdalign="center">', '').replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
             const loosing = arr[5].replaceAll('\n<td align="center">\n', '').replaceAll('\n', '').replaceAll(' ', '');
             position = new Position(teamName, gamePlayed, winning, draw, loosing);
             table.push(position);
@@ -495,11 +657,15 @@ module.exports = {
             ?.replaceAll('\n', '')
             ?.replace('<td width="30" align="center"><font color="blue">', '')
             ?.replace('<td width="30" align="center"><font color="#C70039">', '')
+            ?.replace('<td width="30" align="right"><font style="color:blue;font-size:11px;">', '')
+            ?.replace('<td width="30\" align="right"><font style="color:#C70039;font-size:11px;">', '')
             ?.replace('</font>', '');
         const secondHalf = tds[13]
             ?.replaceAll('\n', '')
             ?.replace('<td width="30" align="center"><font color="blue">', '')
             ?.replace('<td width="30" align="center"><font color="#C70039">', '')
+            ?.replace('<td width="30" align="left"><font color="blue" ;font-size:11px;="">', '')
+            ?.replace('<td width="30" align="left"><font color="#C70039" ;font-size:11px;="">', '')
             ?.replace('</font>', '');
 
 
@@ -512,5 +678,226 @@ module.exports = {
         }
 
         return new OpeningScore(team, openScore, averageMinute, firstQuarter, secondQuarter, thirdQuarter, fourthQuarter, fivethQuarter, sixthQuarter, firstHalf, secondHalf);
+    },
+    isLeagueInBlackList(league) {
+        const leagueBlackList = [
+            'Argentina - Primera C - Clausura',
+            'Australia - Northern Territory PL',
+            'Australia - NPL Capital Territory',
+            'Australia - NPL Queensland',
+            'Australia - NPL Tasmania',
+            'Australia - NPL Victoria',
+            'Australia - NPL Western Australia',
+            'Austria - Regionalliga Mitte',
+            'Austria - Regionalliga Ost',
+            'Austria - Regionalliga Tirol',
+            'Austria - Regionalliga Voralberg',
+            'Belarus - First League',
+            'Belarus - Women Premier League',
+            'Belgium - National Division 1',
+            'Bosnia and Herzegovina - FBiH',
+            'Costa Rica - Liga de Ascenso - Apertura',
+            'CzechRepublic - U19 League',
+            'Denmark - Elitedivisionen Women',
+            'England - Isthmian Div. 1 North',
+            'England - Isthmian Div. 1 South C.',
+            'England - National L. North',
+            'England - National L. South',
+            'England - National League',
+            'England - PL 2 Div. 1',
+            'England - Women Super League',
+            'FaroeIslands - 1. Deild',
+            'France - Division 1 Women',
+            'France - National 2 - Gr. A',
+            'France - National 2 - Gr. B',
+            'France - National 2 - Gr. C',
+            'France - National 2 - Gr. D',
+            'Georgia - Erovnuli Liga 2',
+            'Germany - Bundesliga Women',
+            'Germany - Oberliga Baden-W.',
+            'Germany - Oberliga Baden-W.',
+            'Germany - Oberliga Bayern Nord',
+            'Germany - Oberliga Bayern Nord',
+            'Germany - Oberliga Bayern Sï¿½d',
+            'Germany - Oberliga Bayern Süd',
+            'Germany - Oberliga Bremen',
+            'Germany - Oberliga Bremen',
+            'Germany - Oberliga Hamburg',
+            'Germany - Oberliga Hessen',
+            'Germany - Oberliga Niederrhein',
+            'Germany - Oberliga Niedersachsen',
+            'Germany - Oberliga Rheinland-P/S',
+            'Germany - Oberliga Schleswig H.',
+            'Germany - Oberliga Westfalen',
+            'Germany - Oberliga Westfalen',
+            'Germany - Oberliga Mittelrhein',
+            'Germany - Regionalliga Bayern',
+            'Germany - Regionalliga Nord',
+            'Germany - Regionalliga Nord',
+            'Germany - Regionalliga Nordost',
+            'Germany - Regionalliga Südwest',
+            'Germany - Regionalliga West',
+            'Germany - Oberliga NOFV Nord',
+            'Germany - Regionalliga Sï¿½dwest',
+            'Iceland - 2. Deild',
+            'Iceland - 3. Deild',
+            'Italy - Primavera 1',
+            'Japan - J3 League',
+            'Japan - Nadeshiko League Women',
+            'Malawi - Super League',
+            'Malaysia - Premier League',
+            'Malta - Challenge League',
+            'Mexico - Liga MX U20 - Apertura',
+            'Netherlands - Derde d. Zaterdag',
+            'Netherlands - Derde d. Zondag',
+            'Netherlands - Tweede Divisie',
+            'Norway - Division 3 - Gr. 1',
+            'Poland - 2. Liga',
+            'Scotland - Highland League',
+            'Scotland - League Two',
+            'Serbia - Srpska Liga - East',
+            'Slovakia - 2. Liga',
+            'South Korea - K3 League',
+            'Sweden - Div 2 - N Götaland',
+            'Sweden - Div 2 - N Svealand',
+            'Sweden - Div 2 - Norrland',
+            'Sweden - Div 2 - S Götaland',
+            'Sweden - Div 2 - S Svealand',
+            'Sweden - Div 2 - V Götaland',
+            'Switzerland - Promotion League',
+            'Tajikistan - Vysshaya Liga',
+            'Turkey - 2. Lig Red Group',
+            'Turkey - 2. Lig White Group',
+            'Turkey - 3. Lig Group 1',
+            'Turkey - 3. Lig Group 2',
+            'Turkey - 3. Lig Group 3',
+            'Ukraine - Druha Liga - Gr. A',
+            'Ukraine - Persha Liga',
+            'USA - USL League One',
+            'Vietnam - V League ',
+            'Vietnam - National League Women',
+            ];
+
+
+        return leagueBlackList.find(element => element===league);
+
+    },
+    isLeagueInWhiteList(league) {
+        const leagueBlackList = [
+            'Algeria - Ligue 1',
+            'Argentina - Liga Profesional',
+            'Argentina - Primera Nacional',
+            'Austria - Bundesliga',
+            'Austria - 2. Liga',
+            'Belarus - Premier League',
+            'Belgium - First Division A',
+            'Bolivia - Primera Div. - Apertura',
+            'Bosnia and Herzegovina - Premier Liga',
+            'Brazil - Serie A',
+            'Brazil - Serie B',
+            'Bulgaria - Parva Liga',
+            'Canada - Premier League',
+            'Chile - Primera Division',
+            'Chile - Primera B',
+            'China - Super League',
+            'China - League One',
+            'Colombia - Primera A - Apertura',
+            'Croatia - 1. HNL',
+            'Denmark - Superligaen',
+            'Denmark - 1st Division',
+            'Ecuador - Liga Pro 1st Stage',
+            'Egypt - Premier League',
+            'England - Premier League',
+            'England - Championship',
+            'England - League One',
+            'Estonia - Meistriliiga',
+            'FaroeIslands - Premier League',
+            'Finland - Veikkausliiga',
+            'Finland - Ykkonen',
+            'Finland - Kakkonen Group A',
+            'Finland - Kakkonen Group B',
+            'Finland - Kakkonen Group C',
+            'France - Ligue 1',
+            'France - Ligue 2',
+            'Georgia - Erovnuli Liga',
+            'Germany - Bundesliga',
+            'Germany - 2. Bundesliga',
+            'Germany - 3. Liga',
+            'Greece - Super League',
+            'Hungary - NB I',
+            'Iceland - Urvalsdeild',
+            'Iceland - 1. Deild',
+            'India - Super League',
+            'Indonesia - Liga 1',
+            'Iran - Pro League',
+            'Ireland - Premier Division',
+            'Israel - Ligat HaAl',
+            'Italy - Serie A',
+            'Italy - Serie B',
+            'Japan - J1 League',
+            'Japan - J2 League',
+            'Jordan - Premier League',
+            'Kazakhstan - Premier League',
+            'Latvia - Virsliga',
+            'Lithuania - A Lyga',
+            'Lithuania - 1st League',
+            'Luxembourg - National Division',
+            'Malaysia - Super League',
+            'Mexico - Liga MX - Apertura',
+            'Mexico - Liga MX - Clausura',
+            'Moldova - Divizia Nationala',
+            'Mongolia - Premier League',
+            'Montenegro - First League',
+            'Morocco - Botola Pro',
+            'Netherlands - Eredivisie',
+            'Netherlands - Eerste Divisie',
+            'Northern Ireland - NIFL Premiership',
+            'Norway - Eliteserien',
+            'Norway - 1st Division',
+            'Paraguay - Primera Div. - Apertura',
+            'Peru - Liga 1 - Apertura',
+            'Peru - Liga 1 - Clausura',
+            'Peru - Liga 2 - Apertura',
+            'Peru - Liga 2 - Clausura',
+            'Poland - Ekstraklasa',
+            'Poland - 1. Liga',
+            'Portugal - Liga Portugal',
+            'Portugal - Liga Portugal 2',
+            'Qatar - Stars League',
+            'Romania - Liga 1',
+            'Russia - Premier League',
+            'Saudi Arabia - Professional League',
+            'Scotland - Premiership',
+            'Scotland - Championship',
+            'Serbia - Super Liga',
+            'Singapore - Premier League',
+            'Slovakia - Fortuna Liga',
+            'Slovenia - PrvaLiga',
+            'South Korea - K League 1',
+            'South Korea - K League 2',
+            'Spain - La Liga',
+            'Spain - La Liga 2',
+            'Sweden - Allsvenskan',
+            'Sweden - Superettan',
+            'Switzerland - Super League',
+            'Switzerland - Challenge League',
+            'Thailand - Thai League 1',
+            'Turkey - Super Lig',
+            'Turkey - 1. Lig',
+            'Turkey - 3. Lig Group 3',
+            'UAE - Pro League',
+            'Ukraine - Premier League',
+            'Uruguay - Primera Division - Apertura',
+            'Uruguay - Primera Division - Clausura',
+            'USA - MLS',
+            'USA - USL Championship',
+            'Venezuela - Primera Division',
+            'Vietnam - V League',
+            'Wales - Cymru Premier',
+        ];
+
+
+        return leagueBlackList.find(element => element===league);
+
     }
 }

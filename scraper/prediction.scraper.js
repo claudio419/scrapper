@@ -23,18 +23,28 @@ nextThreePredictions.add([dayDateafterTomorrow]);
 nextThreePredictions.add([afterFourDay]);
 nextThreePredictions.add([afterFiveDay]);
 
-const json1 = require('../output/scrapperSoccerStats_2022_7_7.json');
 Feature('Start Prediction for SoccerStats').tag('@prediction');
 
 Data(nextThreePredictions).Scenario('Prediction', async ({ I, current, predictionPage}) => {
 
-    if (fs.existsSync('./predictionMatches/prediction_for_' + current.date +'.csv')) {
-        I.say('File exist ');
+    if (!fs.existsSync('./tmp/league' + current.date )) {
+        console.log('dir: ', './tmp/league' + current.date , ' dont exist');
         return;
+
     }
 
+    const files = fs.readdirSync('./tmp/league' + current.date);
 
-    const json =JSON.parse(fs.readFileSync('./output/scrapperSoccerStats_' + current.date +'.json', 'utf8'));
+
+    let json = [];
+
+    for (let x= 0; x<files.length; x++) {
+        const league = JSON.parse(fs.readFileSync('./tmp/league' + current.date + '/' + files[x], 'utf8'));
+        json.push(league[0]);
+    }
+    console.log(json.length);
+
+    //const json = JSON.parse(fs.readFileSync('./output/scrapperSoccerStats_' + current.date +'.json', 'utf8'));
 
     const predictions = predictionPage.predictResultByLeagues(json);
 
