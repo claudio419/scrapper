@@ -52,14 +52,13 @@ module.exports = {
         let away = '';
 
         for(let x = 0; x < tableMatchs.length; x++) {
-        //for(let x = 0; x < 15; x++) {
 
             const element = this.gamesPlayedtdsHandler(tableMatchs[x]);
             if (!element) {
                 continue;
             }
 
-            if(element.dataType === 'League' &&  !currentLeague) {
+            if(element.dataType === 'League' && !currentLeague) {
                 currentLeague = element;
                 continue
             }
