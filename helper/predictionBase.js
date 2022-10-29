@@ -137,6 +137,10 @@ class predictionBase {
 
         const homeGeneralResult = this.calculateHomeAwayTableResult(homeHomeResult, homeAwayResult);
         const awayGeneralResult = this.calculateHomeAwayTableResult(awayHomeResult, awayAwayResult);
+
+        if (!homeHomeResult || !awayAwayResult) {
+            return;
+        }
         const homeResult = this.calculateResult(homeHomeResult)
         const awayResult = this.calculateResult(awayAwayResult)
 
@@ -161,10 +165,10 @@ class predictionBase {
     /* calculate General Table by table home and table away*/
     calculateHomeAwayTableResult(homeHomeResult, awayHomeResult) {
         const teamName = homeHomeResult.teamName;
-        const gamePlayed = parseInt(homeHomeResult.gamePlayed) + parseInt(awayHomeResult.gamePlayed);
-        const winning = parseInt(homeHomeResult.winning) + parseInt(awayHomeResult.winning);
-        const draw = parseInt(homeHomeResult.draw) + parseInt(awayHomeResult.draw);
-        const loosing = parseInt(homeHomeResult.loosing) + parseInt(awayHomeResult.loosing);
+        const gamePlayed = parseInt(homeHomeResult.gamePlayed) + parseInt(awayHomeResult?.gamePlayed);
+        const winning = parseInt(homeHomeResult.winning) + parseInt(awayHomeResult?.winning);
+        const draw = parseInt(homeHomeResult.draw) + parseInt(awayHomeResult?.draw);
+        const loosing = parseInt(homeHomeResult.loosing) + parseInt(awayHomeResult?.loosing);
         const winningAvg =  this.getPercentage(winning, gamePlayed);
         const drawAvg = this.getPercentage(draw, gamePlayed);
         const loosingAvg = this.getPercentage(loosing, gamePlayed);
@@ -190,11 +194,18 @@ class predictionBase {
     }
 
     calculateResult(table) {
-        const winningAvg =  this.getPercentage(table.winning.replaceAll('\n<td align=\"center\"> \n<font color=\"green\">\n', ''), table.gamePlayed.replaceAll('\n<td align=\"center\"> \n<font color=\"green\">\n', ''));
-        const drawAvg = this.getPercentage(table.draw, table.gamePlayed);
-        const loosingAvg = this.getPercentage(table.loosing, table.gamePlayed);
+        try {
+            const winningAvg =  this.getPercentage(table?.winning.replaceAll('\n<td align=\"center\"> \n<font color=\"green\">\n', ''), table?.gamePlayed.replaceAll('\n<td align=\"center\"> \n<font color=\"green\">\n', ''));
+            const drawAvg = this.getPercentage(table?.draw, table?.gamePlayed);
+            const loosingAvg = this.getPercentage(table?.loosing, table?.gamePlayed);
 
-        return this.buildResult(table.teamName, table.gamePlayed, table.winning, table.draw, table.loosing, winningAvg, drawAvg, loosingAvg);
+            return this.buildResult(table.teamName, table.gamePlayed, table.winning, table.draw, table.loosing, winningAvg, drawAvg, loosingAvg);
+        } catch (e) {
+            console.log('It break on: ');
+            console.log(table);
+            console.log(e);
+        }
+
     }
 
     /* hier we apply the formel from excel for 70% */

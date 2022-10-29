@@ -55,7 +55,7 @@ Scenario('Send prediction reports to emails', async ({ I}) => {
         from: '"🍀 La suerte te Bendiga 🍀" <'+  process.env.FROM_MAIL + '>',
         to: process.env.TO_MAILS,
         bcc: process.env.BCC_MAILS,
-        subject: "Predicciones completos 💰💰💰💰",
+        subject: "Predicciones completas 💰💰💰💰",
         text: "Quiero mis 5000 💵 💴 💶 💷",
         attachments: attachmentsFiles,
     });
