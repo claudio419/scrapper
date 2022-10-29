@@ -61,7 +61,7 @@ Data(nextThreePages).Scenario('Extract Leagues Data from SoccerStats', async ({ 
             html
         );
 
-        I.amOnPage('http://localhost:63342/stats_web_scrapper/tmp/test' +  current.date + '.html');
+        I.amOnPage(process.env.LOCALHOST_URL +  current.date + '.html');
 
         I.say('I grab visible match');
         let playingLeagues = await soccerStatsPage.getPlayingLeagues('#content > div:nth-child(2) > div > table:nth-child(13) > tbody > tr > td > table > tbody > tr');
